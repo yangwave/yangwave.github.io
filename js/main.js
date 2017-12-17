@@ -1,266 +1,132 @@
-/*
-	Massively by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
-*/
+$(function () {
 
-(function($) {
+	$('.post__main img').on('click', function () {
+		var $img = $(this);
 
-	skel.breakpoints({
-		xlarge:	'(max-width: 1680px)',
-		large:	'(max-width: 1280px)',
-		medium:	'(max-width: 980px)',
-		small:	'(max-width: 736px)',
-		xsmall:	'(max-width: 480px)',
-		xxsmall: '(max-width: 360px)'
+		$.fancybox.open([{
+			src: $img.attr('src'),
+			type: 'image'
+		}]);
 	});
 
-	/**
-	 * Applies parallax scrolling to an element's background image.
-	 * @return {jQuery} jQuery object.
-	 */
-	$.fn._parallax = function(intensity) {
-
-		var	$window = $(window),
-			$this = $(this);
-
-		if (this.length == 0 || intensity === 0)
-			return $this;
-
-		if (this.length > 1) {
-
-			for (var i=0; i < this.length; i++)
-				$(this[i])._parallax(intensity);
-
-			return $this;
-
+	$('[data-fancybox]').fancybox({
+		// closeClickOutside: false, 
+		image: {
+			protect: true
 		}
+	});
 
-		if (!intensity)
-			intensity = 0.25;
+	// key bind
 
-		$this.each(function() {
+	// j  down
+	// k  top
+	// t  page top
+	// b  page bottom
 
-			var $t = $(this),
-				$bg = $('<div class="bg"></div>').appendTo($t),
-				on, off;
+	// i  go index
+	var $body = $('html');
 
-			on = function() {
+	var isKeydown = false;
+	$body.on('keydown', function (e) {
+		// console.log(e.which, 'key down');
 
-				$bg
-					.removeClass('fixed')
-					.css('transform', 'none');
+		switch (e.which) {
+			case 74: // j down
+				if (!isKeydown) {
+					isKeydown = true;
+					requestAnimationFrame(function animate() {
+						var curTop = window.scrollY;
+						window.scrollTo(0, curTop + 15);
 
-				$window
-					.on('scroll._parallax', function() {
-
-						$bg.css('transform', 'none');
-
-					});
-
-			};
-
-			off = function() {
-
-				$bg
-					.addClass('fixed')
-					.css('transform', 'none');
-
-				$window
-					.off('scroll._parallax');
-
-			};
-
-			// Disable parallax on ..
-				if (skel.vars.browser == 'ie'		// IE
-				||	skel.vars.browser == 'edge'		// Edge
-				||	window.devicePixelRatio > 1		// Retina/HiDPI (= poor performance)
-				||	skel.vars.mobile)				// Mobile devices
-					off();
-
-			// Enable everywhere else.
-				else {
-
-					skel.on('!large -large', on);
-					skel.on('+large', off);
-
-				}
-
-		});
-
-		$window
-			.off('load._parallax resize._parallax')
-			.on('load._parallax resize._parallax', function() {
-				$window.trigger('scroll');
-			});
-
-		return $(this);
-
-	};
-
-	$(function() {
-
-		var	$window = $(window),
-			$body = $('body'),
-			$wrapper = $('#wrapper'),
-			$header = $('#header'),
-			$nav = $('#nav'),
-			$main = $('#main'),
-			$navPanelToggle, $navPanel, $navPanelInner;
-
-		// Disable animations/transitions until the page has loaded.
-			$window.on('load', function() {
-				window.setTimeout(function() {
-					$body.removeClass('is-loading');
-				}, 100);
-			});
-
-		// Prioritize "important" elements on medium.
-			skel.on('+medium -medium', function() {
-				$.prioritize(
-					'.important\\28 medium\\29',
-					skel.breakpoint('medium').active
-				);
-			});
-
-		// Scrolly.
-			$('.scrolly').scrolly();
-
-		// Background.
-			$wrapper._parallax(0.925);
-
-		// Nav Panel.
-
-			// Toggle.
-				$navPanelToggle = $(
-					'<a href="#navPanel" id="navPanelToggle">Menu</a>'
-				)
-					.appendTo($wrapper);
-
-				// Change toggle styling once we've scrolled past the header.
-					$header.scrollex({
-						bottom: '5vh',
-						enter: function() {
-							$navPanelToggle.removeClass('alt');
-						},
-						leave: function() {
-							$navPanelToggle.addClass('alt');
+						if (isKeydown) {
+							requestAnimationFrame(animate);
 						}
 					});
+				}
 
-			// Panel.
-				$navPanel = $(
-					'<div id="navPanel">' +
-						'<nav>' +
-						'</nav>' +
-						'<a href="#navPanel" class="close"></a>' +
-					'</div>'
-				)
-					.appendTo($body)
-					.panel({
-						delay: 500,
-						hideOnClick: true,
-						hideOnSwipe: true,
-						resetScroll: true,
-						resetForms: true,
-						side: 'right',
-						target: $body,
-						visibleClass: 'is-navPanel-visible'
+				break;
+
+			case 75: // k up
+				if (!isKeydown) {
+					isKeydown = true;
+					requestAnimationFrame(function animate() {
+						var curTop = window.scrollY;
+						window.scrollTo(0, curTop - 15);
+
+						if (isKeydown) {
+							requestAnimationFrame(animate);
+						}
 					});
+				}
 
-				// Get inner.
-					$navPanelInner = $navPanel.children('nav');
+				break;
 
-				// Move nav content on breakpoint change.
-					var $navContent = $nav.children();
+			case 191: // shift + / = ? show help modal
+				break;
 
-					skel.on('!medium -medium', function() {
+				// 16 shift
+			case 84: // t
+				window.scrollToTop(1);
+				break;
 
-						// NavPanel -> Nav.
-							$navContent.appendTo($nav);
+			case 66: // b
+				window.scrollToBottom();
+				break;
 
-						// Flip icon classes.
-							$nav.find('.icons, .icon')
-								.removeClass('alt');
+			case 78: // n half
+				window.scrollPageDown(1);
+				break;
 
-					});
-
-					skel.on('+medium', function() {
-
-						// Nav -> NavPanel.
-						$navContent.appendTo($navPanelInner);
-
-						// Flip icon classes.
-							$navPanelInner.find('.icons, .icon')
-								.addClass('alt');
-
-					});
-
-				// Hack: Disable transitions on WP.
-					if (skel.vars.os == 'wp'
-					&&	skel.vars.osVersion < 10)
-						$navPanel
-							.css('transition', 'none');
-
-		// Intro.
-			var $intro = $('#intro');
-
-			if ($intro.length > 0) {
-
-				// Hack: Fix flex min-height on IE.
-					if (skel.vars.browser == 'ie') {
-						$window.on('resize.ie-intro-fix', function() {
-
-							var h = $intro.height();
-
-							if (h > $window.height())
-								$intro.css('height', 'auto');
-							else
-								$intro.css('height', h);
-
-						}).trigger('resize.ie-intro-fix');
-					}
-
-				// Hide intro on scroll (> small).
-					skel.on('!small -small', function() {
-
-						$main.unscrollex();
-
-						$main.scrollex({
-							mode: 'bottom',
-							top: '25vh',
-							bottom: '-50vh',
-							enter: function() {
-								$intro.addClass('hidden');
-							},
-							leave: function() {
-								$intro.removeClass('hidden');
-							}
-						});
-
-					});
-
-				// Hide intro on scroll (<= small).
-					skel.on('+small', function() {
-
-						$main.unscrollex();
-
-						$main.scrollex({
-							mode: 'middle',
-							top: '15vh',
-							bottom: '-15vh',
-							enter: function() {
-								$intro.addClass('hidden');
-							},
-							leave: function() {
-								$intro.removeClass('hidden');
-							}
-						});
-
-				});
-
-			}
+			case 77: // m
+				window.scrollPageUp(1);
+				break;
+		}
 
 	});
 
-})(jQuery);
+	$body.on('keyup', function (e) {
+		isKeydown = false;
+	});
+
+	// print hint
+
+	var comments = [
+		'',
+		'                    .::::.            快捷键：',
+		'                  .::::::::.            j：下移',
+		'                 :::::::::::            k：上移',
+		"             ..:::::::::::'             t：移到最顶",
+		"           '::::::::::::'               b：移到最底",
+		'             .::::::::::                n：下移很多',
+		"        '::::::::::::::..               m：上移很多",
+		'             ..::::::::::::.',
+		'           ``::::::::::::::::',
+		"            ::::``:::::::::'        .:::.",
+		"           ::::'   ':::::'       .::::::::.",
+		"         .::::'      ::::     .:::::::'::::.",
+		"        .:::'       :::::  .::::::::'  ':::::.",
+		"       .::'        :::::::::::::::'      ':::::.",
+		"      .::'        :::::::::::::::'          ':::.",
+		"  ...:::          :::::::::::::'              ``::.",
+		" ```` ':.         '::::::::::'                  ::::..",
+		"                    ':::::'                    ':'````..",
+		''
+	];
+
+	comments.forEach(function (item) {
+		console.log('%c' + item, 'color: #399c9c');
+	});
+
+	$('.btn-reward').on('click', function (e) {
+		e.preventDefault();
+
+		var $reward = $('.reward-wrapper');
+		$reward.slideToggle();
+	});
+
+	$('body').addClass('queue-in');
+	setTimeout(function() {
+		$('body').css({ opacity: 1}).removeClass('queue-in');
+	}, 500);
+
+});
